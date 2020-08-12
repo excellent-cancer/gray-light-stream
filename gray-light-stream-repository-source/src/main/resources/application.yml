@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    name: experimental
+    username: root
+    url: jdbc:mysql://localhost:6446/experimental?allowMultiQueries=true
+    password: 110120
