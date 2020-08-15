@@ -38,19 +38,13 @@ public class PollingUpdateIntegrationFlowFactory implements IntegrationFlowFacto
     public void start() {
         if (!isRunning && flowProperties.size() > 0) {
             flowTable = new HashMap<>(flowProperties.size());
-
-            for (Map.Entry<String, RepositoryPollingUpdateProperties> entry : flowProperties.entrySet()) {
-                String flowName = entry.getKey();
-                RepositoryPollingUpdateProperties properties = entry.getValue();
+            flowProperties.forEach((flowName, properties) -> {
+                // 根据收集properties，注册一个integration flow到IntegrationFlowContext中
                 MessageSource<?> source = delegatedMessageSource(flowName, properties);
+                IntegrationFlow integrationFlow = newIntegrationFlow(source, properties);
 
-                IntegrationFlow flow = IntegrationFlows.
-                        from(source, spec -> endpointConfigurer(spec, properties)).
-                        channel(binding.output()).
-                        get();
-
-                flowTable.put(flowName, flowContext.registration(flow).register());
-            }
+                flowTable.put(flowName, flowContext.registration(integrationFlow).register());
+            });
 
             isRunning = true;
         }
@@ -76,7 +70,13 @@ public class PollingUpdateIntegrationFlowFactory implements IntegrationFlowFacto
         return MessageSources.delegated(componentType, properties.getSource());
     }
 
-    private static void endpointConfigurer(SourcePollingChannelAdapterSpec spec, RepositoryPollingUpdateProperties properties) {
+    private IntegrationFlow newIntegrationFlow(MessageSource<?> source, RepositoryPollingUpdateProperties properties) {
+        return IntegrationFlows.from(source, spec -> endpointConfigurer(spec, properties)).
+                channel(binding.output()).
+                get();
+    }
+
+    private void endpointConfigurer(SourcePollingChannelAdapterSpec spec, RepositoryPollingUpdateProperties properties) {
         PollerMetadata pollerMetadata = new PollerMetadata();
         PeriodicTrigger periodicTrigger = new PeriodicTrigger(properties.getPeriod(), properties.getUnit());
 

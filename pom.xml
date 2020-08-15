@@ -6,8 +6,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>gray-light-stream-book-source</module>
-        <module>gray-light-project-source</module>
-        <module>gray</module>
         <module>gray-light-stream-repository-source</module>
     </modules>
     <parent>
@@ -18,6 +16,6 @@
     </parent>
 
     <artifactId>gray-light-stream</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>4.0.0</version>
 
 </project>
